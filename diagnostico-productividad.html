@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Productividad · Clase 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --green-dark: #1a4a0a;
+    --green-mid: #2d6b18;
+    --green-accent: #4a9628;
+    --green-light: #e8f5e0;
+    --green-pale: #f4faf0;
+    --red-dark: #7a1a1a;
+    --red-light: #fdf0f0;
+    --red-mid: #c0392b;
+    --ink: #1a1a18;
+    --ink-mid: #3d3d38;
+    --ink-soft: #6b6b64;
+    --ink-ghost: #a8a89e;
+    --paper: #fafaf7;
+    --white: #ffffff;
+    --border: #e2e2d8;
+    --border-soft: #eeeeea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── SCREEN: Landing ── */
+  #screen-landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: var(--green-dark);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screen-landing::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  #screen-landing::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .landing-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .landing-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 6vw, 56px);
+    color: white;
+    text-align: center;
+    line-height: 1.1;
+    max-width: 600px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .landing-title em {
+    font-style: italic;
+    color: #9de06a;
+  }
+
+  .landing-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    max-width: 440px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .landing-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .landing-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .field-group { margin-bottom: 16px; }
+
+  .field-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .field-group input, .field-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .field-group input:focus, .field-group select:focus {
+    border-color: var(--green-accent);
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--green-mid);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .landing-note {
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    margin-top: 20px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  /* ── SCREEN: Form ── */
+  #screen-form { display: none; padding: 0 0 60px; }
+
+  .form-hero {
+    background: var(--green-dark);
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+
+  .form-hero-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 8px;
+  }
+
+  .form-hero h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  .form-hero p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .student-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    padding: 6px 14px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .student-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #9de06a;
+  }
+
+  .form-progress {
+    background: var(--green-dark);
+    padding: 0 24px 20px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .prog-seg {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.4s;
+  }
+
+  .prog-seg.done { background: #9de06a; }
+
+  .form-content {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Section blocks */
+  .section-block {
+    margin-top: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .section-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Definition box */
+  .def-box {
+    background: var(--green-light);
+    border: 1.5px solid #b8dfa0;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--green-dark);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .def-box span {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--green-mid);
+    margin-top: 6px;
+  }
+
+  /* Yes/No contrast */
+  .contrast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .contrast-col {
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid;
+  }
+
+  .contrast-col.yes {
+    background: var(--green-pale);
+    border-color: #b8dfa0;
+  }
+
+  .contrast-col.no {
+    background: var(--red-light);
+    border-color: #f0b8b8;
+  }
+
+  .contrast-col-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .contrast-col.yes .contrast-col-header { color: var(--green-mid); }
+  .contrast-col.no .contrast-col-header { color: var(--red-mid); }
+
+  .contrast-item {
+    font-size: 12.5px;
+    line-height: 1.5;
+    padding: 5px 0;
+    border-bottom: 1px solid;
+    display: flex;
+    gap: 6px;
+  }
+
+  .contrast-col.yes .contrast-item { border-color: #c8e8b0; color: var(--green-dark); }
+  .contrast-col.no .contrast-item { border-color: #f5c8c8; color: var(--red-dark); }
+  .contrast-item:last-child { border-bottom: none; }
+
+  .ci-icon { flex-shrink: 0; font-size: 11px; margin-top: 2px; }
+
+  /* Scale rows */
+  .scale-rows { display: flex; flex-direction: column; gap: 2px; }
+
+  .scale-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: white;
+    border: 1.5px solid var(--border-soft);
+    transition: border-color 0.2s;
+  }
+
+  .scale-row:hover { border-color: var(--border); }
+
+  .scale-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.4;
+  }
+
+  .scale-dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .s-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-ghost);
+  }
+
+  .s-dot:hover { border-color: var(--green-accent); color: var(--green-accent); }
+  .s-dot.active { background: var(--green-mid); border-color: var(--green-mid); color: white; }
+
+  .scale-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 14px;
+  }
+
+  .scale-legend span { font-size: 11px; color: var(--ink-ghost); }
+
+  /* Ladrones */
+  .ladron-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .ladron-item {
+    border: 1.5px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ladron-item:hover { border-color: var(--green-accent); }
+
+  .ladron-item.sel {
+    background: var(--green-pale);
+    border-color: var(--green-accent);
+  }
+
+  .ladron-check {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ladron-item.sel .ladron-check {
+    background: var(--green-mid);
+    border-color: var(--green-mid);
+  }
+
+  .check-mark { display: none; color: white; font-size: 10px; font-weight: 700; }
+  .ladron-item.sel .check-mark { display: block; }
+
+  .ladron-text {
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.4;
+  }
+
+  .ladron-item.sel .ladron-text { color: var(--green-dark); font-weight: 500; }
+
+  /* Reflexion */
+  .reflex-block { margin-bottom: 16px; }
+
+  .reflex-q {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .reflex-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border-soft);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    background: white;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .reflex-input:focus { border-color: var(--green-accent); }
+
+  /* Score */
+  .score-card {
+    background: white;
+    border: 1.5px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .score-left { flex-shrink: 0; text-align: center; }
+
+  .score-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .score-of {
+    font-size: 12px;
+    color: var(--ink-ghost);
+  }
+
+  .score-right { flex: 1; }
+
+  .score-bar-track {
+    height: 8px;
+    background: var(--border-soft);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--green-mid);
+    width: 0%;
+    transition: width 0.6s ease;
+  }
+
+  .score-label-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .score-sub-text {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  /* Bottom actions */
+  .actions-bar {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1.5px solid var(--border-soft);
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    padding: 12px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    border: 1.5px solid #b8dfa0;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-secondary:hover { background: #d8f0c8; }
+
+  .btn-email {
+    flex: 1;
+    padding: 12px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+
+  .btn-email:hover { background: var(--ink-mid); }
+
+  /* ── SCREEN: Success ── */
+  #screen-success {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px 24px;
+    text-align: center;
+    background: var(--green-dark);
+  }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: #9de06a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 32px;
+  }
+
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: white;
+    margin-bottom: 12px;
+  }
+
+  .success-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.55);
+    max-width: 360px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .success-email-box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 24px;
+  }
+
+  .seb-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+
+  .seb-steps { text-align: left; }
+
+  .seb-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+
+  .seb-step:last-child { border-bottom: none; }
+
+  .seb-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(157,224,106,0.2);
+    color: #9de06a;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .btn-back {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { background: rgba(255,255,255,0.15); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .contrast-grid { grid-template-columns: 1fr; }
+    .ladron-grid { grid-template-columns: repeat(2, 1fr); }
+    .scale-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SCREEN 1: LANDING ══ -->
+<div id="screen-landing">
+  <div class="landing-tag">Productividad Inteligente · Clase 1</div>
+  <h1 class="landing-title">¿Cómo gestionas tu<br><em>tiempo hoy?</em></h1>
+  <p class="landing-sub">Completa tu diagnóstico de productividad, descárgalo en PDF y envíalo por correo. Solo toma 5 minutos.</p>
+
+  <div class="landing-card">
+    <h3>Primero, cuéntanos quién eres</h3>
+    <div class="field-group">
+      <label>Nombre completo</label>
+      <input type="text" id="reg-nombre" placeholder="Tu nombre">
+    </div>
+    <div class="field-group">
+      <label>Correo electrónico</label>
+      <input type="email" id="reg-email" placeholder="tu@correo.com">
+    </div>
+    <div class="field-group">
+      <label>Carrera o proyecto</label>
+      <input type="text" id="reg-carrera" placeholder="¿Qué estudias o emprendes?">
+    </div>
+    <button class="btn-primary" onclick="startForm()">Comenzar diagnóstico →</button>
+  </div>
+
+  <p class="landing-note">Sin registro de cuenta. Tus respuestas se quedan en tu dispositivo.</p>
+</div>
+
+<!-- ══ SCREEN 2: FORM ══ -->
+<div id="screen-form">
+  <div class="form-hero">
+    <div class="form-hero-tag">Diagnóstico personal · Clase 1</div>
+    <h2>¿Cómo gestionas tu tiempo hoy?</h2>
+    <p>Responde con honestidad, no con lo que crees que debería ser</p>
+    <div class="student-badge">
+      <div class="student-dot"></div>
+      <span id="badge-name">—</span>
+    </div>
+  </div>
+
+  <div class="form-progress" id="progress-bar">
+    <div class="prog-seg" id="p0"></div>
+    <div class="prog-seg" id="p1"></div>
+    <div class="prog-seg" id="p2"></div>
+    <div class="prog-seg" id="p3"></div>
+    <div class="prog-seg" id="p4"></div>
+  </div>
+
+  <div class="form-content">
+
+    <!-- SECCIÓN 1 -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h3>La definición que nos guía</h3>
+      </div>
+      <div class="def-box">
+        Productividad es convertir tiempo y energía en resultados que importan.
+        <span>No es cuánto haces — es qué tan bien lo que haces se conecta con lo que necesitas lograr.</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2 -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h3>Ser productivo: sí vs no</h3>
+      </div>
+      <div class="contrast-grid">
+        <div class="contrast-col yes">
+          <div class="contrast-col-header">Sí es productividad</div>
+          <div class="contrast-item"><span class="ci-icon">✓</span>Hacer pocas cosas pero las que mueven el resultado</div>
+          <div class="contrast-item"><span class="ci-icon">✓</span>Elegir qué NO hacer</div>
+          <div class="contrast-item"><span class="ci-icon">✓</span>Terminar lo importante antes de lo urgente</div>
+          <div class="contrast-item"><span class="ci-icon">✓</span>Tener un sistema claro aunque sea simple</div>
+        </div>
+        <div class="contrast-col no">
+          <div class="contrast-col-header">No es productividad</div>
+          <div class="contrast-item"><span class="ci-icon">✕</span>Estar siempre ocupado sin avanzar</div>
+          <div class="contrast-item"><span class="ci-icon">✕</span>Responder mensajes todo el día</div>
+          <div class="contrast-item"><span class="ci-icon">✕</span>Hacer tareas fáciles para sentirse productivo</div>
+          <div class="contrast-item"><span class="ci-icon">✕</span>Tener muchas apps sin usarlas bien</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3 -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h3>¿Cómo estoy ahora? Escala del 1 al 5</h3>
+      </div>
+      <div class="scale-rows" id="scaleRows">
+        <div class="scale-row">
+          <span class="scale-text">Sé cuáles son mis 3 tareas más importantes de la semana</span>
+          <div class="scale-dots" data-row="0">
+            <div class="s-dot" data-row="0" data-val="1" onclick="setScore(0,1)">1</div>
+            <div class="s-dot" data-row="0" data-val="2" onclick="setScore(0,2)">2</div>
+            <div class="s-dot" data-row="0" data-val="3" onclick="setScore(0,3)">3</div>
+            <div class="s-dot" data-row="0" data-val="4" onclick="setScore(0,4)">4</div>
+            <div class="s-dot" data-row="0" data-val="5" onclick="setScore(0,5)">5</div>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="scale-text">Cumplo lo que me propongo cada día</span>
+          <div class="scale-dots" data-row="1">
+            <div class="s-dot" data-row="1" data-val="1" onclick="setScore(1,1)">1</div>
+            <div class="s-dot" data-row="1" data-val="2" onclick="setScore(1,2)">2</div>
+            <div class="s-dot" data-row="1" data-val="3" onclick="setScore(1,3)">3</div>
+            <div class="s-dot" data-row="1" data-val="4" onclick="setScore(1,4)">4</div>
+            <div class="s-dot" data-row="1" data-val="5" onclick="setScore(1,5)">5</div>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="scale-text">Tengo un lugar donde registro mis tareas y metas</span>
+          <div class="scale-dots" data-row="2">
+            <div class="s-dot" data-row="2" data-val="1" onclick="setScore(2,1)">1</div>
+            <div class="s-dot" data-row="2" data-val="2" onclick="setScore(2,2)">2</div>
+            <div class="s-dot" data-row="2" data-val="3" onclick="setScore(2,3)">3</div>
+            <div class="s-dot" data-row="2" data-val="4" onclick="setScore(2,4)">4</div>
+            <div class="s-dot" data-row="2" data-val="5" onclick="setScore(2,5)">5</div>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="scale-text">Distingo fácilmente lo urgente de lo importante</span>
+          <div class="scale-dots" data-row="3">
+            <div class="s-dot" data-row="3" data-val="1" onclick="setScore(3,1)">1</div>
+            <div class="s-dot" data-row="3" data-val="2" onclick="setScore(3,2)">2</div>
+            <div class="s-dot" data-row="3" data-val="3" onclick="setScore(3,3)">3</div>
+            <div class="s-dot" data-row="3" data-val="4" onclick="setScore(3,4)">4</div>
+            <div class="s-dot" data-row="3" data-val="5" onclick="setScore(3,5)">5</div>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="scale-text">Al final del día siento que avancé en lo que importaba</span>
+          <div class="scale-dots" data-row="4">
+            <div class="s-dot" data-row="4" data-val="1" onclick="setScore(4,1)">1</div>
+            <div class="s-dot" data-row="4" data-val="2" onclick="setScore(4,2)">2</div>
+            <div class="s-dot" data-row="4" data-val="3" onclick="setScore(4,3)">3</div>
+            <div class="s-dot" data-row="4" data-val="4" onclick="setScore(4,4)">4</div>
+            <div class="s-dot" data-row="4" data-val="5" onclick="setScore(4,5)">5</div>
+          </div>
+        </div>
+      </div>
+      <div class="scale-legend">
+        <span>1 = casi nunca</span>
+        <span>5 = casi siempre</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h3>Mis ladrones de tiempo</h3>
+      </div>
+      <div class="ladron-grid">
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Redes sociales sin intención</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Interrupciones constantes</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Procrastinación</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Reuniones innecesarias</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Sin lista de tareas</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Cambiar de tarea seguido</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Notificaciones del celular</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Sin prioridades claras</div>
+        </div>
+        <div class="ladron-item" onclick="toggleLadron(this)">
+          <div class="ladron-check"><span class="check-mark">✓</span></div>
+          <div class="ladron-text">Perfeccionismo excesivo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5 -->
+    <div class="section-block">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h3>Tres preguntas clave</h3>
+      </div>
+      <div class="reflex-block">
+        <div class="reflex-q">¿Cuál es la tarea más importante que sueles dejar para después?</div>
+        <textarea class="reflex-input" id="q1" rows="2" placeholder="Escribe tu respuesta..."></textarea>
+      </div>
+      <div class="reflex-block">
+        <div class="reflex-q">¿Qué harías diferente si tuvieras el doble de tiempo?</div>
+        <textarea class="reflex-input" id="q2" rows="2" placeholder="Escribe tu respuesta..."></textarea>
+      </div>
+      <div class="reflex-block">
+        <div class="reflex-q">¿Qué resultado concreto quieres lograr en las próximas 8 semanas?</div>
+        <textarea class="reflex-input" id="q3" rows="2" placeholder="Tu meta más importante del curso..."></textarea>
+      </div>
+    </div>
+
+    <!-- SCORE -->
+    <div class="section-block" style="margin-bottom: 100px;">
+      <div class="section-header">
+        <div class="section-num" style="background:#e8e8e0; color: var(--ink);">★</div>
+        <h3>Tu resultado</h3>
+      </div>
+      <div class="score-card">
+        <div class="score-left">
+          <div class="score-big" id="score-display">0</div>
+          <div class="score-of">/25</div>
+        </div>
+        <div class="score-right">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="score-fill"></div>
+          </div>
+          <div class="score-label-text" id="score-label">Completa la escala para ver tu resultado</div>
+          <div class="score-sub-text" id="score-sub"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STICKY BOTTOM -->
+  <div class="actions-bar">
+    <button class="btn-secondary" onclick="downloadPDF()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar PDF
+    </button>
+    <a class="btn-email" id="email-btn" href="#" onclick="openEmail(event)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      Enviar por correo
+    </a>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: SUCCESS ══ -->
+<div id="screen-success">
+  <div class="success-icon">✓</div>
+  <h2 class="success-title">¡Listo!</h2>
+  <p class="success-sub">Tu diagnóstico está completo. Ahora envíaselo al facilitador para que pueda revisarlo antes de la próxima clase.</p>
+
+  <div class="success-email-box">
+    <div class="seb-label">Pasos para enviar por correo</div>
+    <div class="seb-steps">
+      <div class="seb-step"><div class="seb-num">1</div>Tu PDF ya se descargó en este dispositivo.</div>
+      <div class="seb-step"><div class="seb-num">2</div>Abre tu app de correo (Gmail, Outlook, etc.).</div>
+      <div class="seb-step"><div class="seb-num">3</div>Adjunta el archivo PDF descargado.</div>
+      <div class="seb-step"><div class="seb-num">4</div>Envíalo a la dirección que indicó tu facilitador.</div>
+    </div>
+  </div>
+
+  <button class="btn-back" onclick="goBack()">← Volver al diagnóstico</button>
+</div>
+
+<script>
+  const state = {
+    nombre: '', email: '', carrera: '',
+    scores: [0,0,0,0,0],
+    ladrones: [],
+    q1: '', q2: '', q3: ''
+  };
+
+  function startForm() {
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const email  = document.getElementById('reg-email').value.trim();
+    const carrera= document.getElementById('reg-carrera').value.trim();
+    if (!nombre || !email) {
+      alert('Por favor ingresa tu nombre y correo para continuar.');
+      return;
+    }
+    state.nombre = nombre;
+    state.email  = email;
+    state.carrera= carrera;
+    document.getElementById('badge-name').textContent = nombre + ' · ' + (carrera || 'Estudiante');
+    document.getElementById('screen-landing').style.display = 'none';
+    document.getElementById('screen-form').style.display = 'block';
+    updateProgress();
+    window.scrollTo(0,0);
+  }
+
+  function setScore(row, val) {
+    state.scores[row] = val;
+    document.querySelectorAll(`.s-dot[data-row="${row}"]`).forEach(d => {
+      d.classList.toggle('active', parseInt(d.dataset.val) <= val);
+    });
+    updateScore();
+    updateProgress();
+  }
+
+  function updateScore() {
+    const total = state.scores.reduce((a,b) => a+b, 0);
+    const filled = state.scores.filter(s => s > 0).length;
+    document.getElementById('score-display').textContent = total;
+    document.getElementById('score-fill').style.width = Math.round((total/25)*100) + '%';
+    const lbl = document.getElementById('score-label');
+    const sub = document.getElementById('score-sub');
+    if (filled < 5) {
+      lbl.textContent = 'Completa la escala para ver tu resultado';
+      sub.textContent = '';
+    } else if (total <= 10) {
+      lbl.textContent = 'Recién empezando';
+      sub.textContent = 'Perfecto punto de partida. Este curso es para ti.';
+    } else if (total <= 17) {
+      lbl.textContent = 'En desarrollo';
+      sub.textContent = 'Tienes bases — necesitas un sistema más claro.';
+    } else {
+      lbl.textContent = 'Sistema avanzado';
+      sub.textContent = 'Bien encaminado. Aquí refinarás lo que ya sabes.';
+    }
+  }
+
+  function updateProgress() {
+    const filled = state.scores.filter(s => s > 0).length;
+    const q1 = document.getElementById('q1') ? document.getElementById('q1').value.trim() : '';
+    const q2 = document.getElementById('q2') ? document.getElementById('q2').value.trim() : '';
+    const q3 = document.getElementById('q3') ? document.getElementById('q3').value.trim() : '';
+    const steps = [
+      state.nombre !== '',
+      filled >= 3,
+      filled === 5,
+      document.querySelectorAll('.ladron-item.sel').length > 0,
+      q1 !== '' || q2 !== '' || q3 !== ''
+    ];
+    steps.forEach((done, i) => {
+      document.getElementById('p' + i).classList.toggle('done', done);
+    });
+  }
+
+  ['q1','q2','q3'].forEach(id => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateProgress);
+    }, 100);
+  });
+
+  function toggleLadron(el) {
+    el.classList.toggle('sel');
+    updateProgress();
+  }
+
+  function getLadrones() {
+    return Array.from(document.querySelectorAll('.ladron-item.sel'))
+      .map(el => el.querySelector('.ladron-text').textContent);
+  }
+
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W = 210, margin = 20, cw = W - margin*2;
+    let y = 0;
+
+    const green = [45, 107, 24];
+    const greenLight = [232, 245, 224];
+    const greenDark = [26, 74, 10];
+    const red = [192, 57, 43];
+    const redLight = [253, 240, 240];
+    const ink = [26, 26, 24];
+    const inkSoft = [107, 107, 100];
+    const border = [226, 226, 216];
+    const paper = [250, 250, 247];
+
+    // Header strip
+    doc.setFillColor(...greenDark);
+    doc.rect(0, 0, W, 36, 'F');
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(9);
+    doc.setTextColor(255,255,255);
+    doc.setGState(doc.GState({opacity: 0.5}));
+    doc.text('Productividad Inteligente · Clase 1', W/2, 10, {align:'center'});
+    doc.setGState(doc.GState({opacity: 1}));
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(18);
+    doc.setTextColor(255,255,255);
+    doc.text('Diagnóstico de Productividad', W/2, 22, {align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setGState(doc.GState({opacity: 0.55}));
+    doc.text('Responde con honestidad, no con lo que crees que debería ser', W/2, 30, {align:'center'});
+    doc.setGState(doc.GState({opacity: 1}));
+    y = 44;
+
+    // Student info row
+    doc.setFillColor(...paper);
+    doc.rect(margin, y, cw, 14, 'F');
+    doc.setDrawColor(...border);
+    doc.rect(margin, y, cw, 14);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...inkSoft);
+    doc.text('NOMBRE', margin+4, y+5);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...ink);
+    doc.text(state.nombre, margin+4, y+11);
+    const midX = margin + cw/2;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...inkSoft);
+    doc.text('CARRERA / PROYECTO', midX+2, y+5);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...ink);
+    doc.text(state.carrera || '—', midX+2, y+11);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...inkSoft);
+    doc.text('FECHA', margin+cw-40, y+5);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...ink);
+    doc.text(new Date().toLocaleDateString('es-PE'), margin+cw-40, y+11);
+    y += 20;
+
+    // Section helper
+    function sectionHeader(num, title) {
+      doc.setFillColor(...green);
+      doc.circle(margin+4, y+3, 4, 'F');
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(255,255,255);
+      doc.text(String(num), margin+4, y+4.5, {align:'center'});
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.setTextColor(...ink);
+      doc.text(title, margin+12, y+5);
+      y += 11;
+    }
+
+    // S1: Definición
+    sectionHeader(1, 'La definición que nos guía');
+    doc.setFillColor(...greenLight);
+    doc.setDrawColor(184, 223, 160);
+    doc.roundedRect(margin, y, cw, 16, 2, 2, 'FD');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...greenDark);
+    doc.text('Productividad es convertir tiempo y energía en resultados que importan.', margin+4, y+6);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...green);
+    doc.text('No es cuánto haces — es qué tan bien lo que haces se conecta con lo que necesitas lograr.', margin+4, y+12, {maxWidth: cw-8});
+    y += 22;
+
+    // S2: Sí vs No
+    sectionHeader(2, 'Ser productivo: sí vs no');
+    const colW = (cw-6)/2;
+    // YES col
+    doc.setFillColor(...greenLight);
+    doc.setDrawColor(184, 223, 160);
+    doc.roundedRect(margin, y, colW, 30, 2, 2, 'FD');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...green);
+    doc.text('SÍ ES PRODUCTIVIDAD', margin+4, y+6);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...greenDark);
+    const yesItems = ['Hacer pocas cosas pero las que importan','Elegir qué NO hacer','Terminar lo importante primero','Tener un sistema claro'];
+    yesItems.forEach((t,i) => { doc.text('✓  ' + t, margin+4, y+12+(i*5)); });
+    // NO col
+    const nx = margin+colW+6;
+    doc.setFillColor(...redLight);
+    doc.setDrawColor(240,184,184);
+    doc.roundedRect(nx, y, colW, 30, 2, 2, 'FD');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...red);
+    doc.text('NO ES PRODUCTIVIDAD', nx+4, y+6);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(122, 26, 26);
+    const noItems = ['Estar siempre ocupado sin avanzar','Responder mensajes todo el día','Hacer tareas fáciles','Tener muchas apps sin usarlas bien'];
+    noItems.forEach((t,i) => { doc.text('✕  ' + t, nx+4, y+12+(i*5)); });
+    y += 36;
+
+    // S3: Escala
+    sectionHeader(3, '¿Cómo estoy ahora? Escala del 1 al 5');
+    const labels3 = [
+      'Sé cuáles son mis 3 tareas más importantes',
+      'Cumplo lo que me propongo cada día',
+      'Tengo un lugar donde registro mis tareas',
+      'Distingo fácilmente lo urgente de lo importante',
+      'Al final del día siento que avancé'
+    ];
+    labels3.forEach((lbl, i) => {
+      doc.setFillColor(...paper);
+      doc.setDrawColor(...border);
+      doc.rect(margin, y, cw, 9, 'FD');
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...ink);
+      doc.text(lbl, margin+4, y+6);
+      const val = state.scores[i];
+      for (let v = 1; v <= 5; v++) {
+        const cx = margin+cw-30+(v-1)*6;
+        if (v <= val) {
+          doc.setFillColor(...green);
+          doc.setDrawColor(...green);
+        } else {
+          doc.setFillColor(255,255,255);
+          doc.setDrawColor(...border);
+        }
+        doc.circle(cx, y+4.5, 2.2, 'FD');
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(6.5);
+        doc.setTextColor(v <= val ? 255 : 168, v <= val ? 255 : 168, v <= val ? 255 : 160);
+        doc.text(String(v), cx, y+5.8, {align:'center'});
+      }
+      y += 10;
+    });
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...inkSoft);
+    doc.text('1 = casi nunca                                                                5 = casi siempre', margin+4, y+3);
+    y += 10;
+
+    // S4: Ladrones
+    sectionHeader(4, 'Mis ladrones de tiempo marcados');
+    const ladrones = getLadrones();
+    doc.setFillColor(...paper);
+    doc.setDrawColor(...border);
+    doc.rect(margin, y, cw, ladrones.length > 0 ? Math.ceil(ladrones.length/3)*10+4 : 12, 'FD');
+    if (ladrones.length === 0) {
+      doc.setFont('helvetica','italic');
+      doc.setFontSize(9);
+      doc.setTextColor(...inkSoft);
+      doc.text('Ninguno seleccionado', margin+4, y+7);
+      y += 16;
+    } else {
+      ladrones.forEach((l, i) => {
+        const col = i % 3;
+        const row = Math.floor(i/3);
+        const lx = margin + 4 + col*(cw/3);
+        const ly = y + 7 + row*9;
+        doc.setFillColor(...green);
+        doc.circle(lx+2, ly-1.5, 2, 'F');
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(7);
+        doc.setTextColor(255,255,255);
+        doc.text('✓', lx+2, ly-0.3, {align:'center'});
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...ink);
+        doc.text(l, lx+6, ly);
+      });
+      y += Math.ceil(ladrones.length/3)*10 + 8;
+    }
+
+    // S5: Preguntas
+    sectionHeader(5, 'Tres preguntas clave');
+    const qs = [
+      { q:'¿Cuál es la tarea más importante que sueles dejar para después?', a: document.getElementById('q1').value },
+      { q:'¿Qué harías diferente si tuvieras el doble de tiempo?',           a: document.getElementById('q2').value },
+      { q:'¿Qué resultado quieres lograr en las próximas 8 semanas?',        a: document.getElementById('q3').value }
+    ];
+    qs.forEach(({q, a}) => {
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...ink);
+      doc.text(q, margin, y+5, {maxWidth: cw});
+      y += 8;
+      const lines = doc.splitTextToSize(a || '(sin respuesta)', cw-8);
+      const h = Math.max(12, lines.length * 5 + 6);
+      doc.setFillColor(255,255,255);
+      doc.setDrawColor(...border);
+      doc.rect(margin, y, cw, h, 'FD');
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(a ? ink[0] : 168, a ? ink[1] : 168, a ? ink[2] : 160);
+      doc.text(lines, margin+4, y+6);
+      y += h + 5;
+    });
+
+    // Score strip
+    const total = state.scores.reduce((a,b)=>a+b,0);
+    const pct = Math.round((total/25)*100);
+    let scoreLabel = 'Sin completar';
+    if (state.scores.filter(s=>s>0).length === 5) {
+      if (total <= 10) scoreLabel = 'Recién empezando';
+      else if (total <= 17) scoreLabel = 'En desarrollo';
+      else scoreLabel = 'Sistema avanzado';
+    }
+    doc.setFillColor(...greenDark);
+    doc.rect(margin, y, cw, 16, 'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(18);
+    doc.setTextColor(255,255,255);
+    doc.text(total + '/25', margin+8, y+11);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(157,224,106);
+    doc.text(scoreLabel, margin+30, y+11);
+    doc.setFillColor(255,255,255);
+    doc.setGState(doc.GState({opacity:0.2}));
+    doc.rect(margin+cw-62, y+5, 60, 6, 'F');
+    doc.setGState(doc.GState({opacity:1}));
+    doc.setFillColor(157,224,106);
+    doc.rect(margin+cw-62, y+5, Math.round(60*pct/100), 6, 'F');
+    y += 22;
+
+    // Footer
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(8);
+    doc.setTextColor(...inkSoft);
+    doc.text('Este diagnóstico no tiene respuestas correctas — es el punto de partida de tu sistema.', W/2, y+4, {align:'center'});
+
+    const filename = 'diagnostico-productividad-' + state.nombre.replace(/\s+/g,'-').toLowerCase() + '.pdf';
+    doc.save(filename);
+
+    document.getElementById('screen-form').style.display = 'none';
+    document.getElementById('screen-success').style.display = 'flex';
+  }
+
+  function openEmail(e) {
+    e.preventDefault();
+    const total = state.scores.reduce((a,b)=>a+b,0);
+    const ladrones = getLadrones().join(', ') || 'ninguno seleccionado';
+    const q1 = document.getElementById('q1').value || '(sin respuesta)';
+    const q2 = document.getElementById('q2').value || '(sin respuesta)';
+    const q3 = document.getElementById('q3').value || '(sin respuesta)';
+    const subject = encodeURIComponent('Diagnóstico Productividad Clase 1 — ' + state.nombre);
+    const body = encodeURIComponent(
+`Hola,
+
+Te comparto mi diagnóstico de productividad de la Clase 1.
+
+DATOS
+- Nombre: ${state.nombre}
+- Carrera/Proyecto: ${state.carrera || '—'}
+- Fecha: ${new Date().toLocaleDateString('es-PE')}
+
+PUNTAJE ESCALA: ${total}/25
+- Sé cuáles son mis 3 tareas más importantes: ${state.scores[0]}/5
+- Cumplo lo que me propongo cada día: ${state.scores[1]}/5
+- Tengo un lugar donde registro mis tareas: ${state.scores[2]}/5
+- Distingo urgente de importante: ${state.scores[3]}/5
+- Al final del día siento que avancé: ${state.scores[4]}/5
+
+LADRONES DE TIEMPO: ${ladrones}
+
+PREGUNTAS CLAVE
+1. Tarea que dejo para después: ${q1}
+2. Con el doble de tiempo haría: ${q2}
+3. Meta para las próximas 8 semanas: ${q3}
+
+(PDF adjunto con el diagnóstico completo)
+`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  function goBack() {
+    document.getElementById('screen-success').style.display = 'none';
+    document.getElementById('screen-form').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+</script>
+</body>
+</html>
